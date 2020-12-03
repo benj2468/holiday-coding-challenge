@@ -1,0 +1,64 @@
+#!/bin/bash
+
+inputFile=$1
+part=$2
+totalPasswords=0
+while IFS= read -r line
+do
+  foo=string
+  min=''
+  max=''
+  state=0
+  count=0
+  passwordStart=0
+  for (( i=0; i<${#line}; i++ )); do
+    if [[ $part == 2 ]] && [[ $state == 4 ]]
+    then
+      v1=${line:(($min+$passwordStart)):1}
+      v2=${line:(($max+$passwordStart)):1}
+      if [ "$v1" = "$char" ];
+      then
+        if [ "$v2" != "$char" ];
+        then (( totalPasswords += 1 ));
+        fi
+      else
+        if [ "$v2" = "$char" ];
+        then (( totalPasswords += 1 ));
+        fi
+      fi
+      i=${#line}
+    fi
+    c="${line:$i:1}"
+    # State changes
+    if [[ $c =~ '-' ]]
+    then 
+      (( state += 1 ))
+    elif [[ $c =~ ' ' ]] 
+    then
+      if [[ $state == 3 ]];
+      then
+        (( passwordStart += $i ))
+      fi
+      (( state += 1 ))
+    # If State
+    elif [[ $state == 0 ]]
+    then 
+      min+=$c
+    elif [[ $state == 1 ]]
+    then 
+      max+=$c
+    elif [[ $state == 2 ]]
+    then 
+      char=$c
+      (( state += 1 )) 
+    elif [[ $state == 4 ]] && [[ $c == $char ]]
+    then 
+      (( count += 1 ))
+    fi
+  done
+  if [[ $part == 1 ]] && [[ $count -le $max ]] && [[ $count -ge $min ]]; then
+    (( totalPasswords += 1 ))
+  fi
+done < "$inputFile"
+
+echo $totalPasswords

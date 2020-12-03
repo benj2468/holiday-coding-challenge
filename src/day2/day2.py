@@ -1,6 +1,6 @@
 import re
 
-with open('src/day2/input.txt') as file:
+with open('./input.txt') as file:
     lines = map(lambda x: re.findall(r'(\d+)-(\d+) (\w): (.*)', x)[0], file.read().strip().split('\n'))
 
 def checkPasswordPartOne(line):
