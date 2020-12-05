@@ -16,12 +16,13 @@ const validation = {
 
 const checkLine = (passportLine) => {
     return [...passportLine.matchAll(/(\w+):([\w#]+)/g)].reduce((acc, cur) => {
+        console.log([cur[1], cur[2], validation[cur[1]](cur[2])])
         return acc + (validation[cur[1]](cur[2]) ? 1 : 0)
     }, 0) >= 7 ? 1 : 0
 }
 
 const solution = fs
-.readFileSync('./input.txt')
+.readFileSync('./test.txt')
 .toString()
 .split('\n\n')
 .filter(line => checkLine(line)).length
