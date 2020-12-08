@@ -22,7 +22,6 @@ with open('./input.txt') as file:
 
         line = file.readline()
 
-print(bags)
 my_bag = 'shiny gold'
 def get_containers(prev_containers, cur_bag):
     if cur_bag not in bags:
@@ -36,3 +35,4 @@ def get_containers(prev_containers, cur_bag):
     return containers
 
 print(len(get_containers(set(), my_bag)))
+
