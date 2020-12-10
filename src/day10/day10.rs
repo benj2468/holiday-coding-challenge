@@ -1,73 +1,59 @@
 use std::fs::File;
-use std::io::{self, BufRead};
-use std::path::Path;
+use std::error::Error;
+use std::io::{BufRead, BufReader, Lines};
 use std::collections::HashMap;
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     // File hosts must exist in current path before this produces output
-    if let Ok(lines) = read_lines("./input.txt") {
-        // Consumes the iterator, returns an (Optional) String
-        let mut lines_vector = Vec::new();
-        lines_vector.push(0);
-        for line in lines {
-            if let Ok(ip) = line {
-                lines_vector.push(ip.parse::<i64>().unwrap())
-            }
-        }
-        lines_vector.sort();
-        let mut i = 0;
-        let mut ones = 0;
-        let mut threes = 1;
-        while i < lines_vector.len() - 1 {
-            if let Some(next) = lines_vector.get(i+1) {
-                if let Some(cur) = lines_vector.get(i) {
-                    let diff = next - cur;
-                    if diff == 1 {ones = ones + 1}
-                    if diff == 3 {threes = threes + 1}
-                }
-            }
-            i = i + 1
-        }
-        println!("1: Answer {}", ones * threes);
+    
+    let lines = read_file_lines("./test.txt").expect("error");
 
-        let mut memory =  HashMap::new();
-        let arr = get_arrangements(&lines_vector[..], &mut memory).0;
-        println!("2: Solution {}", arr)
+    let mut lines_vector = Vec::new();
+    lines_vector.push(0);
+    for line in lines.filter_map(|result| result.ok()) {
+        lines_vector.push(line.parse::<i64>().expect("cannot convert to integer"))
     }
+    // Consumes the iterator, returns an (Optional) String
+
+    lines_vector.sort();
+    let mut ones = 0;
+    let mut threes = 1;
+    for (cur, next) in lines_vector.windows(2).map(|pair| (pair[0], pair[1])) {
+        let diff = next - cur;
+        if diff == 1 {ones = ones + 1}
+        if diff == 3 {threes = threes + 1}
+    }
+    println!("1: Answer {}", ones * threes);
+
+    let mut memory =  HashMap::new();
+    let arr = get_arrangements(&lines_vector[..], &mut memory).expect("").0;
+    println!("2: Solution {}", arr);
+
+    Ok(())
 }
 
-// The output is wrapped in a Result to allow matching on errors
-// Returns an Iterator to the Reader of the lines of the file.
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where P: AsRef<Path>, {
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
+fn read_file_lines(file_name: &str) -> Result<Lines<BufReader<File>>, Box<dyn Error>> {
+    let file = File::open(file_name).expect("cannot open file");
+    let file = BufReader::new(file);
+
+    Ok(file.lines())
 }
 
-fn get_arrangements<'a>(list: &[i64], memory: &'a mut HashMap<i64, i64>) -> (i64, &'a mut HashMap<i64, i64>)  {
+fn get_arrangements<'a>(list: &[i64], memory: &'a mut HashMap<i64, i64>) -> Result<(i64, &'a mut HashMap<i64, i64>), Box<dyn Error>>   {
     let mut arr = 0;
-    if list.len() == 1 { return (1, memory) }
-    let mut i = 1;
-    while i < list.len() && can_execute(list.get(i), list.get(0)) {
-        if let Some(key) = list.get(i) {
-            if !memory.contains_key(key) {
-                let (val, memory) = get_arrangements(&list[i..], memory);
-                memory.insert(*key, val);
-            }
-            if let Some(val) = memory.get(key) {
-                arr = arr + val;
-            }
-        }
-        i = i + 1
-    }
-    (arr, memory)
-}
+    if list.len() == 1 { return Ok((1, memory)) }
+    let zeroth = list.get(0).expect("");
 
-fn can_execute(a: Option<&i64>, b: Option<&i64>) -> bool {
-    if let Some(a) = a {
-        if let Some(b) = b {
-            return a - b <= 3
+    for (i, key) in list.iter().enumerate() {
+        if i == 0 { continue }
+        if key - zeroth > 3 { break }
+
+        if !memory.contains_key(key) {
+            let (val, memory) = get_arrangements(&list[i..], memory).expect("Could not get arrangements");
+            memory.insert(*key, val);
         }
+        let val = memory.get(key).expect("");
+        arr = arr + val;
     }
-    return false
+    Ok((arr, memory))
 }
