@@ -1,0 +1,24 @@
+{
+  "name": "holiday-coding-challenge",
+  "version": "1.0.0",
+  "description": "[Adam Sandler's Chanukah Song](https://www.youtube.com/watch?v=KX5Z-HpHH9g): ``` Okay This is a song that uhh There's a lot of Christmas songs out there and uhh Not too many Chanukah songs So uhh I wrote a song for all those nice little Jewish kids who don't get     to hear any Chanukah songs Here we go! ```",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benj2468/holiday-coding-challenge.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/benj2468/holiday-coding-challenge/issues"
+  },
+  "homepage": "https://github.com/benj2468/holiday-coding-challenge#readme",
+  "devDependencies": {
+    "eslint": "^7.15.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1"
+  }
+}
