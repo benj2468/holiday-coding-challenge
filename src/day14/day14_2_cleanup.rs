@@ -1,9 +1,9 @@
 
-use std::fs::File;
+use std::fs;
 use std::error::Error;
-use std::io::{BufRead, BufReader, Lines};
+use std::io::{BufReader};
 use std::env;
-use std::str::FromStr;
+use std::str::{FromStr, Lines};
 use std::iter::Iterator;
 use std::num::ParseIntError;
 use std::collections::HashMap;
@@ -95,7 +95,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let memory = read_file_lines(&args[1])
         .expect("error reading file")
-        .filter_map(|f| f.ok())
+        .lines()
+        .into_iter()
         .map(|line| line.parse::<Instruction>())
         .filter_map(|f| f.ok())
         .to_mem::<Memory>();
@@ -107,11 +108,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn read_file_lines(file_name: &str) -> Result<Lines<BufReader<File>>, Box<dyn Error>> {
-    let file = File::open(file_name).expect("cannot open file");
-    let file = BufReader::new(file);
+fn read_file_lines(file_name: &str) -> Result<String, Box<dyn Error>> {
+    let file = fs::read_to_string(file_name)?;
 
-    Ok(file.lines())
+    Ok(file)
 }
 
 fn check_k_bit(value: usize, k: u32) -> bool {
