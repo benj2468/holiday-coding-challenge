@@ -44,20 +44,22 @@ impl Memory {
 
     fn get_true_locations(&self, location: usize) -> Vec<usize> {
         let base: usize = 2;
-        let mut true_location = location;
+        let mut fixed_location = location;
         let mut wildCards: Vec<&u32> = vec![];
         for (b_digit, mask_val) in self.mask.iter() {
             if *mask_val == 1  && !check_k_bit(location, *b_digit){
-                true_location += base.pow(*b_digit);
+                fixed_location += base.pow(*b_digit);
             }
             if *mask_val == 2 {
                 wildCards.push(b_digit);
-                if check_k_bit(location, *b_digit) { true_location -= base.pow(*b_digit); }
+                if check_k_bit(location, *b_digit) { 
+                    fixed_location -= base.pow(*b_digit); 
+                }
             }
 
         }
 
-        get_positions_helper(0, &wildCards, true_location)
+        get_positions_helper(0, &wildCards, fixed_location)
     }
     fn put(mut self, location: usize, value: usize) -> Self {
         let base: usize = 2;
